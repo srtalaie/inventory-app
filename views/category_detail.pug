@@ -1,0 +1,18 @@
+extends layout
+
+block content
+
+  h1 Category: #{title}
+
+  div(style='margin-left:20px;margin-top:20px')
+
+    h4 Products
+    if products.length
+      ul
+        each product in products
+          li
+            img(src=product.img_url alt='product_image' style='width:100px; height:100px;')
+            a(href=product.url) #{product.name}
+            p $#{product.price}
+    else
+      p This category has no products.

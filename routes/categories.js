@@ -4,9 +4,7 @@ const router = express.Router()
 // Require category controller
 const category_controller = require("../controllers/categroyController")
 
-/// Category ROUTES ///
-
-// GET home page.
-router.get("/", category_controller.index)
+// GET Category detail page
+router.get("/:id", category_controller.category_detail)
 
 module.exports = router
