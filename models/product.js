@@ -13,7 +13,7 @@ const ProductSchema = new Schema({
 
 // Virtual for product's url
 ProductSchema.virtual("url").get(function () {
-	return `/catalog/product/${this._id}`
+	return `/product/${this._id}`
 })
 
 module.exports = mongoose.model("Product", ProductSchema)
