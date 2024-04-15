@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  div(style='margin-left:20px;margin-top:20px')
+    h4 #{title}
+    img(src=product.img_url alt='product_image' style='width:100px; height:100px;')
+    p Category: #{product.category.name}
+    p Description: #{product.description}
+    p Price: $#{product.price}
+    p Amount in Stock: #{product.stock}
