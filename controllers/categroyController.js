@@ -39,3 +39,60 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
 		products: products,
 	})
 })
+
+// Display category create form on GET.
+exports.category_create_get = asyncHandler(async (req, res, next) => {
+	res.render("category_form", { title: "Create Category" })
+})
+
+// Handle Caetgory create on POST.
+exports.category_create_post = [
+	// Validate and sanitize the name field.
+	body(
+		"name",
+		"Category name must contain at least 3 characters and not exceed 100 characters"
+	)
+		.trim()
+		.isLength({ min: 3, max: 100 })
+		.escape(),
+	body("description", "A description of the category is required")
+		.trim()
+		.escape(),
+
+	// Process request after validation and sanitization.
+	asyncHandler(async (req, res, next) => {
+		// Extract validation errors
+		const errors = validationResult(req)
+
+		// Create Category object with sanatized data
+		const category = new Category({
+			name: req.body.name,
+			description: req.body.description,
+		})
+
+		if (!errors.isEmpty()) {
+			// There are errors. Render the form again with sanitized values/error messages.
+			res.render("category_form", {
+				title: "Create Category",
+				category: category,
+				errors: errors.array(),
+			})
+			return
+		} else {
+			// Data from form is valid.
+			// Check if Category with same name already exists.
+			const categoryExists = await Category.findOne({ name: req.body.name })
+				.collation({ locale: "en", strength: 2 })
+				.exec()
+
+			if (categoryExists) {
+				// Genre exists, redirect to its detail page.
+				res.redirect(categoryExists.url)
+			} else {
+				await category.save()
+				// New genre is saved, redirect to genre detail page
+				res.redirect(category.url)
+			}
+		}
+	}),
+]
