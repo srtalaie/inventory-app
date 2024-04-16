@@ -11,7 +11,6 @@ block content
       ul
         each product in products
           li
-            img(src=product.img_url alt='product_image' style='width:100px; height:100px;')
             a(href=product.url) #{product.name}
             p $#{product.price}
     else
