@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #[em Dumb Amazon]
+
+  p Shop the following categories:
+
+  if categories.length
+    ul
+      each category in categories
+        li
+          a(href=category.url) #{category.name}
+          p #{category.description}
+  else
+    p There are no categories yet.
+
+  a(href="/category/create") Add Category

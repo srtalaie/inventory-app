@@ -5,17 +5,16 @@ const asyncHandler = require("express-async-handler")
 const { body, validationResult } = require("express-validator")
 
 // Category list
-exports.index = asyncHandler(async (req, res, next) => {
+exports.category_list = asyncHandler(async (req, res, next) => {
 	// Get categories
 	const [numCategories, categories] = await Promise.all([
 		Category.countDocuments({}).exec(),
 		Category.find({}, "name description").sort({ name: 1 }).exec(),
 	])
 
-	res.render("index", {
+	res.render("category_list", {
 		title: "Dumb Amazon",
 		categories: categories,
-		category_count: numCategories,
 	})
 })
 
