@@ -11,7 +11,6 @@ exports.product_detail = asyncHandler(async (req, res, next) => {
 		.populate("category")
 		.exec()
 
-	console.log(product)
 	if (product === null) {
 		const err = new Error("Product not found.")
 		err.status = 404
@@ -93,3 +92,28 @@ exports.product_create_post = [
 		}
 	}),
 ]
+
+// Display Product delete
+exports.product_delete_get = asyncHandler(async (req, res, next) => {
+	// Get all categories
+	const product = await Product.findById(req.params.id)
+		.populate("category")
+		.exec()
+
+	if (product === null) {
+		// No results
+		res.redirect("/category")
+	}
+
+	res.render("product_delete", {
+		title: "Delete Product",
+		product: product,
+	})
+})
+
+// Handle Product delete on POST.
+exports.product_delete_post = asyncHandler(async (req, res, next) => {
+	// Assume valid Product id in field.
+	await Product.findByIdAndDelete(req.body.id)
+	res.redirect("/category")
+})

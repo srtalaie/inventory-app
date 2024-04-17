@@ -1,16 +1,17 @@
 extends layout
 
 block content
+  p #[strong Do you really want to delete this Product?]
+
   div(style='margin-left:20px;margin-top:20px')
-    h4 #{title}
     img(src=product.img_url alt='product_image' style='width:100px; height:100px;')
     p Category: #{product.category.name}
     p Description: #{product.description}
     p Price: $#{product.price}
     p Amount in Stock: #{product.stock}
 
-  hr
-  p
-    a(href=product.url+'/delete') Delete product
-  p
-    a(href=product.url+'/update') Update product
+  form(method='POST')
+    div.form-group
+      input#id.form-control(type='hidden',name='id', value=product._id )
+
+    button.btn.btn-primary(type='submit') Delete
