@@ -16,4 +16,10 @@ router.get("/", category_controller.category_list)
 // GET Category detail page
 router.get("/:id", category_controller.category_detail)
 
+// GET Category delete page
+router.get("/:id/delete", category_controller.category_delete_get)
+
+// POST Category delete page
+router.post("/:id/delete", category_controller.category_delete_post)
+
 module.exports = router

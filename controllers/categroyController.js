@@ -36,6 +36,7 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
 		title: category.name,
 		description: category.description,
 		products: products,
+		category: category,
 	})
 })
 
@@ -95,3 +96,46 @@ exports.category_create_post = [
 		}
 	}),
 ]
+
+// Display Category delete form on GET.
+exports.category_delete_get = asyncHandler(async (req, res, next) => {
+	// Get category and associated products in parallel
+	const [category, allProductsInCategory] = await Promise.all([
+		Category.findById(req.params.id).exec(),
+		Product.find({ category: req.params.id }, "name").exec(),
+	])
+
+	if (category === null) {
+		// No results
+		res.redirect("/category")
+	}
+
+	res.render("category_delete", {
+		title: "Delete Category",
+		category: category,
+		category_products: allProductsInCategory,
+	})
+})
+
+// Handle Category delete on POST.
+exports.category_delete_post = asyncHandler(async (req, res, next) => {
+	// Get details of category and all their products (in parallel)
+	const [category, allProductsInCategory] = await Promise.all([
+		Category.findById(req.params.id).exec(),
+		Product.find({ category: req.params.id }, "name").exec(),
+	])
+
+	if (allProductsInCategory.length > 0) {
+		// Category has products. Render in same way as for GET route.
+		res.render("category_delete", {
+			title: "Delete Category",
+			category: category,
+			category_products: allProductsInCategory,
+		})
+		return
+	} else {
+		// Category has no products. Delete object and redirect to the list of categories.
+		await Category.findByIdAndDelete(req.body.categoryid)
+		res.redirect("/category")
+	}
+})
