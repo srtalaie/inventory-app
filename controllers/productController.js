@@ -117,3 +117,94 @@ exports.product_delete_post = asyncHandler(async (req, res, next) => {
 	await Product.findByIdAndDelete(req.body.id)
 	res.redirect("/category")
 })
+
+// Display Product update form on GET.
+exports.product_update_get = asyncHandler(async (req, res, next) => {
+	// Get Product and categories for form.
+	const [product, allCategories] = await Promise.all([
+		Product.findById(req.params.id).populate("category").exec(),
+		Category.find().sort({ name: 1 }).exec(),
+	])
+
+	if (product === null) {
+		// No results
+		const err = new Error("Product not found")
+		err.status = 404
+		return next(err)
+	}
+
+	// Mark selected category as checked
+	allCategories.forEach((category) => {
+		console.log(product)
+		if (product.category._id === category._id) category.checked = "true"
+	})
+
+	res.render("product_form", {
+		title: "Update Product",
+		categories: allCategories,
+		product: product,
+	})
+})
+
+// Handle Product update on POST.
+exports.product_update_post = [
+	// Validate and sanitize the fields
+	body("name", "Name must not be empty.").trim().isLength({ min: 1 }).escape(),
+	body("description", "Description must not be empty.")
+		.trim()
+		.isLength({ min: 1 })
+		.escape(),
+	body("price", "Must be a valid price").trim().toFloat().escape(),
+	body("stock", "Must be a valid stock amount")
+		.trim()
+		.toInt()
+		.escape()
+		.isLength({ min: 1 }),
+	body("img_url", "Must be a valid image url").trim().isURL().escape(),
+	body("category.*").escape(),
+
+	// Process request after validation and sanitization.
+	asyncHandler(async (req, res, next) => {
+		// Extract validation errors
+		const errors = validationResult(req)
+
+		// Create product object with sanitized data.
+		const product = new Product({
+			name: req.body.name,
+			description: req.body.description,
+			price: req.body.price,
+			stock: req.body.stock,
+			img_url: req.body.img_url,
+			category: req.body.category,
+			_id: req.params.id,
+		})
+
+		if (!errors.isEmpty()) {
+			// There are errors. Get all categories for form
+			const allCategories = Category.find().sort({ name: 1 }).exec()
+
+			// Mark our selected genres as checked.
+			for (const category of allCategories) {
+				if (product.category.indexOf(category._id) > -1) {
+					category.checked = "true"
+				}
+			}
+
+			res.render("product_form", {
+				title: "Update Product",
+				categories: allCategories,
+				product: product,
+				errors: errors.array(),
+			})
+			return
+		} else {
+			// Data is valid. Update record.
+			const updatedProduct = await Product.findByIdAndUpdate(
+				req.params.id,
+				product,
+				{}
+			)
+			res.redirect(updatedProduct.url)
+		}
+	}),
+]

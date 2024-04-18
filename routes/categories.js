@@ -22,4 +22,10 @@ router.get("/:id/delete", category_controller.category_delete_get)
 // POST Category delete page
 router.post("/:id/delete", category_controller.category_delete_post)
 
+// GET Category update page
+router.get("/:id/update", category_controller.category_update_get)
+
+// POST Category update page
+router.post("/:id/update", category_controller.category_update_post)
+
 module.exports = router

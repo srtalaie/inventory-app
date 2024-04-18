@@ -139,3 +139,60 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
 		res.redirect("/category")
 	}
 })
+
+// Display Category update form on GET.
+exports.category_update_get = asyncHandler(async (req, res, next) => {
+	const category = await Category.findById(req.params.id).exec()
+
+	if (category === null) {
+		// No results
+		const err = new Error("Category not found.")
+		err.status = 404
+		return next(err)
+	}
+
+	res.render("category_form", {
+		title: "Update Category",
+		category: category,
+	})
+})
+
+// Handle Category update on POST.
+exports.category_update_post = [
+	// Validate and sanitize the name field.
+	body(
+		"name",
+		"Category name must contain at least 3 characters and not exceed 100 characters"
+	)
+		.trim()
+		.isLength({ min: 3, max: 100 })
+		.escape(),
+	body("description", "A description of the category is required")
+		.trim()
+		.escape(),
+
+	// Process request after validation and sanitization.
+	asyncHandler(async (req, res, next) => {
+		// Extract errors from validation/sanitization
+		const errors = validationResult(req)
+
+		// Create new author with validated data
+		const category = new Category({
+			name: req.body.name,
+			description: req.body.description,
+			_id: req.params.id,
+		})
+
+		if (!errors.isEmpty) {
+			res.render("category_form", {
+				title: "Update Category",
+				category: category,
+				errors: errors.array(),
+			})
+			return
+		} else {
+			await Category.findByIdAndUpdate(req.params.id, category)
+			res.redirect(category.url)
+		}
+	}),
+]
